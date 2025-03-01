@@ -1,0 +1,1 @@
+from .slack import SlackNotification  # noqa: F401
