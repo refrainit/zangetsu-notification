@@ -1,16 +1,14 @@
-name: Publish Package
+name: Publish Package to PyPI
 on:
   push:
     tags:
       - 'v*.*.*'
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
-
+      id-token: write  # OIDC認証が必要
     steps:
     - uses: actions/checkout@v3
     
@@ -22,56 +20,29 @@ jobs:
     - name: Extract version from tag
       id: get_version
       run: |
-        # タグ名から 'v' を除去してバージョン番号を取得 (例: v0.1.1 → 0.1.1)
         VERSION=${GITHUB_REF#refs/tags/v}
         echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Version extracted: $VERSION"
     
     - name: Update version in pyproject.toml
       run: |
-        # pythonを使ってファイルを更新
         python -c "
         import re
         with open('pyproject.toml', 'r') as f:
             content = f.read()
-        # バージョン行を置換
         content = re.sub(r'version = \"[^\"]+\"', 'version = \"${{ steps.get_version.outputs.version }}\"', content)
         with open('pyproject.toml', 'w') as f:
             f.write(content)
         "
-        # 変更を確認
-        grep "version" pyproject.toml
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build twine
+        pip install build
     
     - name: Build package
       run: python -m build
     
     - name: Publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        python -m twine upload --skip-existing dist/*
-    
-    - name: Publish to GitHub Packages
-      env:
-        TWINE_USERNAME: ${{ github.actor }}
-        TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        TWINE_REPOSITORY_URL: https://maven.pkg.github.com/${{ github.repository }}
-      run: |
-        # パッケージ名を GitHub 形式に合わせる
-        python -c "
-        import re
-        with open('pyproject.toml', 'r') as f:
-            content = f.read()
-        # name 行を GitHub 形式に変更
-        content = re.sub(r'name = \"zangetsu-notification\"', 'name = \"${{ github.repository_owner }}/zangetsu-notification\"', content)
-        with open('pyproject.toml', 'w') as f:
-            f.write(content)
-        "
-        # GitHub Packagesに公開
-        python -m twine upload --skip-existing dist/*
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        skip-existing: true
