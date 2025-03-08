@@ -1,5 +1,5 @@
 [project]
-name = "senju3-notification"
+name = "zangetsu-notification"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -11,4 +11,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
+    "ruff>=0.9.10",
 ]

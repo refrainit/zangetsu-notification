@@ -1,10 +1,13 @@
 import json
 import os
+from typing import Any, Dict, List, Optional
 
 import requests
 
+from zangetsu_notification.base import NotificationBase
 
-class SlackNotification:
+
+class SlackNotification(NotificationBase):
     """
     Slackに通知を送信するユーティリティクラス
 
@@ -12,17 +15,19 @@ class SlackNotification:
     メッセージ送信を可能にします。
     """
 
-    def __init__(self, webhook_url: str | None = None):
+    def __init__(self, webhook_url: Optional[str] = None):
         """
         Slackノティフィケーションクラスの初期化
 
         Args:
-            webhook_url (str | None, optional): Slackのwebhook URL。
+            webhook_url (Optional[str]): Slackのwebhook URL。
                 指定しない場合は環境変数から取得を試みます。
 
         Raises:
             ValueError: Webhook URLが見つからない場合
         """
+        super().__init__()
+
         # webhook_urlが指定されていない場合は環境変数から取得
         if webhook_url is None:
             webhook_url = os.getenv("SLACK_WEBHOOK_URL")
@@ -71,20 +76,22 @@ class SlackNotification:
         message: str,
         username: str = "Notification Bot",
         icon_emoji: str = ":bell:",
-        channel: str | None = None,
-        attachments: list | None = None,
-        mentions: list[str] | None = None,
+        channel: Optional[str] = None,
+        attachments: Optional[List[Dict[str, Any]]] = None,
+        mentions: Optional[List[str]] = None,
+        **kwargs,
     ) -> bool:
         """
         Slackにメッセージを送信する
 
         Args:
             message (str): 送信するメッセージ本文
-            username (str, optional): 送信者の表示名。デフォルトは'Notification Bot'
-            icon_emoji (str, optional): ボットのアイコン絵文字。デフォルトは':bell:'
-            channel (str | None, optional): 送信先チャンネル
-            attachments (list | None, optional): メッセージに追加する添付情報
-            mentions (list[str] | None, optional): メンションするユーザー
+            username (str): 送信者の表示名。デフォルトは'Notification Bot'
+            icon_emoji (str): ボットのアイコン絵文字。デフォルトは':bell:'
+            channel (Optional[str]): 送信先チャンネル
+            attachments (Optional[List[Dict[str, Any]]]): メッセージに追加する添付情報
+            mentions (Optional[List[str]]): メンションするユーザー
+            **kwargs: その他の引数（互換性のため）
 
         Returns:
             bool: メッセージ送信の成否
@@ -96,7 +103,7 @@ class SlackNotification:
             message = f"{mention_text}\n{message}"
 
         # メッセージペイロードの作成
-        payload: dict = {
+        payload: Dict[str, Any] = {
             "text": message,
             "username": username,
             "icon_emoji": icon_emoji,
@@ -129,20 +136,22 @@ class SlackNotification:
     def send_error_message(
         self,
         error_message: str,
-        error_details: str | None = None,
+        error_details: Optional[str] = None,
         username: str = "Error Bot",
         icon_emoji: str = ":warning:",
-        mentions: list[str] | None = None,
+        mentions: Optional[List[str]] = None,
+        **kwargs,
     ) -> bool:
         """
         エラー通知用のメッセージを送信する
 
         Args:
             error_message (str): エラーの概要
-            error_details (str | None, optional): エラーの詳細情報
-            username (str, optional): 送信者の表示名
-            icon_emoji (str, optional): アイコン絵文字
-            mentions (list[str] | None, optional): メンションするユーザー
+            error_details (Optional[str]): エラーの詳細情報
+            username (str): 送信者の表示名
+            icon_emoji (str): アイコン絵文字
+            mentions (Optional[List[str]]): メンションするユーザー
+            **kwargs: その他の引数（互換性のため）
 
         Returns:
             bool: メッセージ送信の成否
@@ -167,20 +176,22 @@ class SlackNotification:
     def send_success_message(
         self,
         success_message: str,
-        additional_info: str | None = None,
+        additional_info: Optional[str] = None,
         username: str = "Success Bot",
         icon_emoji: str = ":white_check_mark:",
-        mentions: list[str] | None = None,
+        mentions: Optional[List[str]] = None,
+        **kwargs,
     ) -> bool:
         """
         成功通知用のメッセージを送信する
 
         Args:
             success_message (str): 成功の概要
-            additional_info (str | None, optional): 追加情報
-            username (str, optional): 送信者の表示名
-            icon_emoji (str, optional): アイコン絵文字
-            mentions (list[str] | None, optional): メンションするユーザー
+            additional_info (Optional[str]): 追加情報
+            username (str): 送信者の表示名
+            icon_emoji (str): アイコン絵文字
+            mentions (Optional[List[str]]): メンションするユーザー
+            **kwargs: その他の引数（互換性のため）
 
         Returns:
             bool: メッセージ送信の成否
