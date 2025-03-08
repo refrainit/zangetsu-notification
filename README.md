@@ -15,7 +15,7 @@
 ## インストール
 
 ```bash
-pip install git+https://github.com/leadingtechdev/zangetsu-notification.git
+pip install zangetsu-notification
 ```
 
 ## 基本的な使い方
