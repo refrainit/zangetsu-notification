@@ -1,8 +1,12 @@
 name: Publish Package
-
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*.*.*'  # vで始まるセマンティックバージョンタグが作成されたときに実行
+
+permissions:
+  contents: read
+  id-token: write  # PyPIへの信頼性の高い公開に必要
 
 jobs:
   deploy:
@@ -22,11 +26,9 @@ jobs:
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
     - name: Publish to GitHub Packages
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
+        repository-url: https://github.com/refrainit/zangetsu-notification
         password: ${{ secrets.GITHUB_TOKEN }}
-        repository_url: https://upload.pypi.org/legacy/
